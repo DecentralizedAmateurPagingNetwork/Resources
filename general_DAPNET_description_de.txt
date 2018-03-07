@@ -1,0 +1,7 @@
+Das DAPNET ist ein von Funkamateuren betriebenes Funkmeldesystem. Es besteht aus einem dezentralen Verbund von Servern und daran angeschlossenen Sendern.
+Das Netz wird von freiwilligen Funkamateuren aufgebaut und betrieben.
+Anwendungen sind persönliche Funkrufe, allgemeine Amateurfunk-Nachrichten in verschiedenen Kategorien, Warnungen vor Unwetterlagen und zivilen Katastrophenfällen.
+Es gibt eine Vielzahl an kommerziell erwerbbaren Meldern zu erschwinglichen Preisen. Diese haben sowohl einen akustischen als auch einen Vibrationsalarm.
+Im März 2018 sind bereits über 90 Sender dauerhaft im Einsatz. Das Abdeckungsgebiet umfasst Teile von Deutschland, den Niederlanden, Belgien und der Schweiz. Eine Vielzahl der Sender ist aber das digitale Richtfunknetzwerk HAMNET an die Server angebunden. Dadurch und durch das redundante Systemkonzept sind die meisten Sender auch im Falle einer Katastrophenlage wie einem flächendeckenden Stromausfall weiterhin in der Lage, Funkrufe zu versenden.
+Als Sender können entweder kommerzielle Geräte modifiziert werden oder mit einfachen Mitteln neue Anlagen aufgebaut werden. Im einfachsten Fall ist dazu nur ein Funkgerät und ein Raspberry Pi notwendig. Der Abdeckungsbereich eines Senders umfasst ca. 20 km, je nach Gelände und Senderhöhe.
+Um Absenden von Funkrufen gibt es eine moderne mehrsprachige Webseite sowie eine App für Android.
