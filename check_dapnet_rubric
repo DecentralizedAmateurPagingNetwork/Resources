@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+# Nagios-Plugin zur Rubrikenüberwachung im DAPNET (www.hampager.de)
+#
+# developed since 06/14/2021 by Michael ON5MM (ex DG5MM)
+# rev: 0.1
+#
+
+use REST::Client;
+use MIME::Base64;
+use JSON;
+use Date::Parse;
+use Switch;
+
+$dapnethost = 'hampager.de';				# DAPNET-Server-Host
+$dapnetport = '8080';					# DAPNET-Server-Port
+$dapnetuser = 'DEINBENUTZERNAME';			# Benutzername am DAPNET-Server
+$dapnetpw = 'DEINPASSWORT';				# Passwort am DAPNET-Server
+
+$c = REST::Client->new();									# und wir klöppeln uns einen neuen REST-Client
+$c->setHost("$dapnethost:$dapnetport");								# zu diesem Server/Port
+$c->addHeader('Authorization'=>'Basic ' . encode_base64($dapnetuser . ':' . $dapnetpw));	# mit diesen Credentials
+$c->addHeader('charset', 'UTF-8');								# UTF-8 encoded
+my $daten = $c->GET('/news?rubricName=dx-kw')->responseContent();				# alle (10) Inhalte der Rubrik DX KW ziehen, 5x leer, 5x Einträge
+my $news = decode_json $daten;									# JSON-Format aufbrechen
+push @timestamps, $_->{timestamp} for @$news;							# alle Zeitstempel in ein Array schmeißen (5x sinnvoll, 5x "UNSET")
+my $daten = $c->GET('/news?rubricName=dx-kwcw')->responseContent();				# das Gleiche mit der Rubrik DX KW CW
+my $news = decode_json $daten;
+push @timestamps, $_->{timestamp} for @$news;
+@timestamps = sort @timestamps;									# Array mit 20 Elementen, erste 10 "UNSET", dann aufsteigend die Zeitstempel der 2x5 Rubrikeneinträge
+my $diff = int(time() - str2time(@timestamps[-1]));						# Sekundendifferenz zwischen jetzt und dem aktuellsten Eintrag aus einer der beiden Rubriken
+switch ($diff) {
+    case [0..300] { 
+        print "OK - Letzter Rubrikeneintrag vor $diff sek."; 					# Neuester Eintrag jünger als 5 Minuten? alles bon giorno, Ende mit Returncode 0 und entsprechender Ausgabe
+        exit 0;
+    }
+    case [301..660] {
+        print "WARNING - Letzter Rubrikeneintrag vor $diff sek.";				# Neuester Eintrag zwischen 5 und 10 Minuten alt? auffällig.
+        exit 1;
+    }
+    case ($diff gt 660) {
+        print "CRITICAL - Letzter Rubrikeneintrag vor $diff sek.";				# Kein DX-Spot auf KW seit mehr als 10 Minuten: irgendwas kaputt oder Amateurfunk tot.
+        exit 2;
+    }
+    else {
+        print "UNKNOWN - Fehler bei der Verarbeitung";						# Wird wahrscheinlich nie auftreten.
+    }
+}
+exit 3;												# Returncode 3 (NAGIOS: unknown) wenn irgendwo vorher was schief läuft bzw. Programm nicht schon im switch() beendet wurde.
